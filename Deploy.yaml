@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with: 
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ env.AWS_REGION }}
+    - name: Build the Docker image
+      run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 933863088040.dkr.ecr.us-east-1.amazonaws.com
+      run: docker build -t dockerrepo .
+      run: docker tag dockerrepo:latest 933863088040.dkr.ecr.us-east-1.amazonaws.com/dockerrepo:latest
+      run: docker push 933863088040.dkr.ecr.us-east-1.amazonaws.com/dockerrepo:latest
